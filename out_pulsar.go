@@ -4,21 +4,12 @@ import "C"
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"unsafe"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/fluent/fluent-bit-go/output"
 )
-
-type pulsarConfig struct {
-	BrokerServiceUrl           string
-	Tennant                    string
-	Namespace                  string
-	Topic                      string
-	TlsEnabled                 bool
-	TlsTrustCertsFilePath      string
-	TlsAllowInsecureConnection bool
-}
 
 type pulsarClient struct {
 	Client   *pulsar.Client
@@ -36,33 +27,26 @@ func FLBPluginRegister(ctx unsafe.Pointer) int {
 //export FLBPluginInit
 func FLBPluginInit(plugin unsafe.Pointer) int {
 
-	config := &pulsarConfig{
-		BrokerServiceUrl:           output.FLBPluginConfigKey(plugin, "BrokerServiceUrl"),
-		Tennant:                    output.FLBPluginConfigKey(plugin, "Tennant"),
-		Namespace:                  output.FLBPluginConfigKey(plugin, "Namespace"),
-		Topic:                      output.FLBPluginConfigKey(plugin, "Topic"),
-		TlsEnabled:                 parseBool(output.FLBPluginConfigKey(plugin, "TlsEnabled")),
-		TlsTrustCertsFilePath:      output.FLBPluginConfigKey(plugin, "TlsTrustCertsFilePath"),
-		TlsAllowInsecureConnection: parseBool(output.FLBPluginConfigKey(plugin, "TlsAllowInsecureConnection")),
-	}
-
-	client, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL: config.BrokerServiceUrl,
+	pClient, err := pulsar.NewClient(pulsar.ClientOptions{
+		URL:                        output.FLBPluginConfigKey(plugin, "BrokerServiceUrl"),
+		TLSTrustCertsFilePath:      output.FLBPluginConfigKey(plugin, "TLSTrustCertsFilePath"),
+		TLSAllowInsecureConnection: parseBool(output.FLBPluginConfigKey(plugin, "TLSAllowInsecureConnection")),
 	})
 	if err != nil {
 		return output.FLB_ERROR
 	}
 
-	producer, err := client.CreateProducer(pulsar.ProducerOptions{
-		Topic: "my-topic",
+	pProducer, err := pClient.CreateProducer(pulsar.ProducerOptions{
+		Topic:           output.FLBPluginConfigKey(plugin, "Topic"),
+		CompressionType: pulsar.LZ4,
 	})
 	if err != nil {
 		return output.FLB_ERROR
 	}
 
 	client = &pulsarClient{
-		Client:   client,
-		Producer: producer,
+		Client:   pClient,
+		Producer: pProducer,
 	}
 
 	// Gets called only once for each instance you have configured.
@@ -78,7 +62,7 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 		if ret != 0 {
 			break
 		}
-		_, err = producer.Send(context.Background(), &pulsar.ProducerMessage{
+		_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
 			Payload: []byte(record),
 		})
 
