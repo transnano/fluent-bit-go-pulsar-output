@@ -19,5 +19,5 @@ Once built, a shared library called `out_pulsar.so` will be available. It's real
 ## Run Fluent Bit with the new plugin
 
 ```sh
-$ bin/fluent-bit -e /path/to/out_gstdout.so -i cpu -o gstdout
+$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar
 ```
