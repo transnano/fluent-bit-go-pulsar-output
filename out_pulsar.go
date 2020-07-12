@@ -26,23 +26,26 @@ func FLBPluginRegister(ctx unsafe.Pointer) int {
 
 //export FLBPluginInit
 func FLBPluginInit(plugin unsafe.Pointer) int {
-
-	pClient, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL:                        output.FLBPluginConfigKey(plugin, "BrokerServiceUrl"),
-		TLSTrustCertsFilePath:      output.FLBPluginConfigKey(plugin, "TLSTrustCertsFilePath"),
-		TLSAllowInsecureConnection: parseBool(output.FLBPluginConfigKey(plugin, "TLSAllowInsecureConnection")),
-	})
+	clientOpts := pulsar.ClientOptions{
+		URL: output.FLBPluginConfigKey(plugin, "BrokerServiceUrl"),
+		// TLSTrustCertsFilePath:      output.FLBPluginConfigKey(plugin, "TLSTrustCertsFilePath"),
+		// TLSAllowInsecureConnection: parseBool(output.FLBPluginConfigKey(plugin, "TLSAllowInsecureConnection")),
+	}
+	pClient, err := pulsar.NewClient(clientOpts)
 	if err != nil {
+		fmt.Errorf("[flb-go-pulsar][error][Init] failed: %s, %v\n", clientOpts.URL, err)
 		return output.FLB_ERROR
 	}
-
-	pProducer, err := pClient.CreateProducer(pulsar.ProducerOptions{
-		Topic:           output.FLBPluginConfigKey(plugin, "Topic"),
-		CompressionType: pulsar.LZ4,
-	})
+	producerOpts := pulsar.ProducerOptions{
+		Topic: output.FLBPluginConfigKey(plugin, "Topic"),
+		// CompressionType: pulsar.LZ4,
+	}
+	pProducer, err := pClient.CreateProducer(producerOpts)
 	if err != nil {
+		fmt.Errorf("[flb-go-pulsar][error][Init] failed: %s, %v\n", producerOpts.Topic, err)
 		return output.FLB_ERROR
 	}
+	fmt.Printf("[flb-go-pulsar][info][Init] Succeeded: %s, %s\n", clientOpts.URL, producerOpts.Topic)
 
 	client = &pulsarClient{
 		Client:   pClient,
@@ -73,12 +76,13 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 			default:
 				payload = []byte(fmt.Sprintf("%v", v))
 			}
+			fmt.Printf("[flb-go-pulsar][info][FlushCtx] presend: %s\n", string(payload))
 
 			_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
 				Payload: payload,
 			})
 			if err != nil {
-				fmt.Printf("[flb-go-pulsar][error] err: %s\n", err)
+				fmt.Errorf("[flb-go-pulsar][error] err: %v\n", err)
 				return output.FLB_ERROR
 			}
 		}
