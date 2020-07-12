@@ -16,6 +16,13 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
+# Docker script args, location, and expected SHA - SHA generated on release
+ARG DOCKER_SCRIPT_SOURCE="https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/docker-debian.sh"
+ARG DOCKER_SCRIPT_SHA="dev-mode"
+ARG ENABLE_NONROOT_DOCKER="true"
+ARG SOURCE_SOCKET=/var/run/docker-host.sock
+ARG TARGET_SOCKET=/var/run/docker.sock
+
 # Configure apt, install packages and tools
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
@@ -71,6 +78,12 @@ RUN apt-get update \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     #
+    # Use Docker script from script library to set things up
+    && curl -sSL $DOCKER_SCRIPT_SOURCE -o /tmp/docker-setup.sh \
+    && ([ "${DOCKER_SCRIPT_SHA}" = "dev-mode" ] || (echo "${DOCKER_SCRIPT_SHA} */tmp/docker-setup.sh" | sha256sum -c -)) \
+    && /bin/bash /tmp/docker-setup.sh "${ENABLE_NONROOT_DOCKER}" "${SOURCE_SOCKET}" "${TARGET_SOCKET}" "${USERNAME}" \
+    && rm /tmp/docker-setup.sh \
+    #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
@@ -81,3 +94,9 @@ ENV GO111MODULE=auto
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
+
+# Setting the ENTRYPOINT to docker-init.sh will configure non-root access to 
+# the Docker socket if "overrideCommand": false is set in devcontainer.json. 
+# The script will also execute CMD if you need to alter startup behaviors.
+ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
+CMD [ "sleep", "infinity" ]
