@@ -1,10 +1,9 @@
 package main
 
 import (
-	"C"
+	"testing"
 	"unsafe"
 )
-import "testing"
 
 func TestFLBPluginRegister(t *testing.T) {
 	type args struct {
@@ -48,10 +47,8 @@ func TestFLBPluginInit(t *testing.T) {
 
 func TestFLBPluginFlushCtx(t *testing.T) {
 	type args struct {
-		ctx    unsafe.Pointer
-		data   unsafe.Pointer
-		length C.int
-		tag    *C.char
+		ctx  unsafe.Pointer
+		data unsafe.Pointer
 	}
 	tests := []struct {
 		name string
@@ -62,7 +59,7 @@ func TestFLBPluginFlushCtx(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FLBPluginFlushCtx(tt.args.ctx, tt.args.data, tt.args.length, tt.args.tag); got != tt.want {
+			if got := FLBPluginFlushCtx(tt.args.ctx, tt.args.data, 0, nil); got != tt.want {
 				t.Errorf("FLBPluginFlushCtx() = %v, want %v", got, tt.want)
 			}
 		})
