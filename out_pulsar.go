@@ -12,8 +12,8 @@ import (
 )
 
 type pulsarClient struct {
-	Client   *pulsar.Client
-	Producer *pulsar.Producer
+	Client   pulsar.Client
+	Producer pulsar.Producer
 }
 
 var client *pulsarClient
@@ -62,13 +62,25 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 		if ret != 0 {
 			break
 		}
-		_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
-			Payload: []byte(record),
-		})
 
-		if err != nil {
-			fmt.Printf("[flb-go::pulsar][error] err: %s\n", err)
-			return output.FLB_ERROR
+		for _, v := range record {
+			var payload []byte
+			switch t := v.(type) {
+			case string:
+				payload = []byte(t)
+			case []byte:
+				payload = t
+			default:
+				payload = []byte(fmt.Sprintf("%v", v))
+			}
+
+			_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
+				Payload: payload,
+			})
+			if err != nil {
+				fmt.Printf("[flb-go-pulsar][error] err: %s\n", err)
+				return output.FLB_ERROR
+			}
 		}
 	}
 
