@@ -82,7 +82,7 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 				Payload: payload,
 			})
 			if err != nil {
-				fmt.Errorf("[flb-go-pulsar][error] err: %v\n", err)
+				fmt.Errorf("[flb-go-pulsar][error][FlushCtx] err: %v\n", err)
 				return output.FLB_ERROR
 			}
 		}
