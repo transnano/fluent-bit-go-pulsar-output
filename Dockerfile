@@ -5,7 +5,7 @@ COPY go.sum /build/
 COPY out_pulsar.go /build/
 RUN cd /build/ && go build -buildmode=c-shared -o out_pulsar.so .
 
-FROM fluent/fluent-bit:1.4.6 as fluent-bit
+FROM fluent/fluent-bit:1.5.0 as fluent-bit
 USER root
 
 COPY --from=builder /build/out_pulsar.so /fluent-bit/bin/
