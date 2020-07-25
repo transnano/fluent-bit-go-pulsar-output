@@ -3,5 +3,6 @@
   "timezone": "Asia/Tokyo",
   "schedule": ["before 10am every weekday"],
   "labels": ["renovate"],
+  "postUpdateOptions": ["gomodTidy"],
   "patch": { "automerge": true }
 }
