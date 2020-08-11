@@ -10,5 +10,6 @@ USER root
 
 COPY --from=builder /build/out_pulsar.so /fluent-bit/bin/
 COPY --from=builder /build/out_pulsar.h /fluent-bit/bin/
+COPY example/fluent.conf /fluent-bit/etc/fluent-bit.conf
 
 CMD ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf", "-e", "/fluent-bit/bin/out_pulsar.so"]

@@ -6,7 +6,14 @@ services:
     expose:
       - 8080
       - 6650
-    command: bin/pulsar standalone
+      - 8843
+      - 6651
+    ports:
+      - "8080:8080"
+      - "6650:6650"
+      - "8843:8843"
+      - "6651:6651"
+    command: bin/pulsar standalone --no-functions-worker --no-stream-storage
 
   fluentbit:
     build:
@@ -14,3 +21,4 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - pulsar
+    command: /fluent-bit/bin/fluent-bit -i cpu -c /fluent-bit/etc/fluent-bit.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
