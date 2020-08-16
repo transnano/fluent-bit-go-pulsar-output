@@ -50,7 +50,7 @@ $ sudo docker run --rm -v $(pwd)/example:/usr/local/src my-pulsar:latest /fluent
 # 2020/08/09
 $ sudo docker build -t my-pulsar .
 $ sudo docker run --rm \
--e FLB_GO_PULSAR_BROKER_SERVICE_URL=pulsar://localhost:6650 \
+-e FLB_GO_PULSAR_BROKER_SERVICE_URL=pulsar://pulsar:6650 \
 -e FLB_GO_PULSAR_TENNANT=pulsar \
 -e FLB_GO_PULSAR_NAMESPACE=default \
 -e FLB_GO_PULSAR_TOPIC=test \

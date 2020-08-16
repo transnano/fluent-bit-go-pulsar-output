@@ -14,7 +14,6 @@ import (
 )
 
 var defaultMap = map[string]string{
-	"Url":                        "pulsar://localhost:6650",
 	"BrokerServiceUrl":           "pulsar://pulsar:6650",
 	"Tennant":                    "pulsar",
 	"Namespace":                  "default",
@@ -114,8 +113,10 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 func getConfigKey(plugin unsafe.Pointer, key string) string {
 	s := output.FLBPluginConfigKey(plugin, key)
 	if len(s) == 0 {
+		log.Printf("[flb-go-pulsar][debug][getConfigKey] Default value")
 		return defaultMap[key]
 	}
+	log.Printf("[flb-go-pulsar][debug][getConfigKey] Config value")
 	return s
 }
 
