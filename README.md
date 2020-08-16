@@ -23,43 +23,34 @@ $ ldd out_pulsar.so
 ## Run Fluent Bit with the new plugin
 
 ```sh
-$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar
+$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar -p plugin_conf1=value1 ...
 ```
 
 
 ```sh
-
-$ docker-compose up -d .
-$ 
-$ 
-
-$ go build -buildmode=c-shared -o out_pulsar.so .
-$ sudo docker run -it --rm -p 127.0.0.1:24224:24224 fluent/fluent-bit:1.5.2 /fluent-bit/bin/fluent-bit -i forward -o stdout -p format=json_lines -f 1
-
-$ sudo docker run --rm fluent/fluent-bit:1.5.2 /fluent-bit/bin/fluent-bit -i cpu -o stdout -p format=json_lines -f 1
-
-$ sudo docker run -it --rm -v $(pwd):/pulsar -p 127.0.0.1:24224:24224 fluent/fluent-bit:1.5.2 /fluent-bit/bin/fluent-bit -i cpu -c /pulsar/example/fluent.conf -e /pulsar/out_pulsar.so -o stdout -p format=json_lines -f 1
-
-
-$ sudo docker build -t my-pulsar .
-
-$ sudo docker run -it --rm -v $(pwd)/example:/usr/local/src my-pulsar:latest /fluent-bit/bin/fluent-bit -i cpu -c /usr/local/fluent.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
-$ sudo docker run --rm -v $(pwd)/example:/usr/local/src my-pulsar:latest /fluent-bit/bin/fluent-bit -i cpu -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
-
-
-# 2020/08/09
-$ sudo docker build -t my-pulsar .
-$ sudo docker run --rm \
--e FLB_GO_PULSAR_BROKER_SERVICE_URL=pulsar://pulsar:6650 \
--e FLB_GO_PULSAR_TENNANT=pulsar \
--e FLB_GO_PULSAR_NAMESPACE=default \
--e FLB_GO_PULSAR_TOPIC=test \
--e FLB_GO_PULSAR_TLS_ENABLED=true \
--e FLB_GO_PULSAR_TLS_TRUST_CERTS_FILE_PATH=file://path/to/cert \
--e FLB_GO_PULSAR_TLS_ALLOW_INSECURE_CONNECTION=true \
-my-pulsar:latest /fluent-bit/bin/fluent-bit -i cpu -c /fluent-bit/etc/fluent-bit.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
-
-$ sudo docker run --rm --env-file .env my-pulsar:latest /fluent-bit/bin/fluent-bit -i cpu -c /fluent-bit/etc/fluent-bit.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
-
-$ sudo docker run --rm my-pulsar:latest /fluent-bit/bin/fluent-bit -i cpu -c /fluent-bit/etc/fluent-bit.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1
+$ sudo docker-compose up pulsar
+# wait a minute...
+$ sudo docker-compose up --build fluentbit
 ```
+
+Run Fluent Bit with the new plugin
+
+```sh
+$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar
+```
+
+Configuration File
+
+```sh
+$ bin/fluent-bit -c /fluent-bit/etc/fluent-bit.conf
+```
+
+In addition download the following data sample file (130KB):
+
+- https://fluentbit.io/samples/sp-samples-1k.log
+
+```sh
+$ curl -LO https://fluentbit.io/samples/sp-samples-1k.log
+```
+
+Ref: [Hands On! 101 - Fluent Bit: Official Manual](https://docs.fluentbit.io/manual/stream-processing/getting-started/hands-on)

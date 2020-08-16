@@ -21,4 +21,3 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - pulsar
-    command: /fluent-bit/bin/fluent-bit -i cpu -c /fluent-bit/etc/fluent-bit.conf -e /fluent-bit/bin/out_pulsar.so -i cpu -o flb-go-pulsar -p format=json_lines -f 1

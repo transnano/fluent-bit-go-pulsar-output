@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 	"unsafe"
 
@@ -55,8 +56,8 @@ func FLBPluginInit(plugin unsafe.Pointer) int {
 		return output.FLB_ERROR
 	}
 	producerOpts := pulsar.ProducerOptions{
-		Topic: getConfigKey(plugin, "Topic"),
-		// CompressionType: pulsar.LZ4,
+		Topic:           getConfigKey(plugin, "Topic"),
+		CompressionType: pulsar.LZ4,
 	}
 	pProducer, err := pClient.CreateProducer(producerOpts)
 	if err != nil {
@@ -78,33 +79,51 @@ func FLBPluginInit(plugin unsafe.Pointer) int {
 func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int {
 
 	dec := output.NewDecoder(data, int(length))
+
+	count := 0
 	for {
 		ret, _, record := output.GetRecord(dec)
 		if ret != 0 {
 			break
 		}
 
-		for _, v := range record {
-			var payload []byte
-			switch t := v.(type) {
-			case string:
-				payload = []byte(t)
-			case []byte:
-				payload = t
-			default:
-				payload = []byte(fmt.Sprintf("%v", v))
-			}
-			log.Printf("[flb-go-pulsar][info][FlushCtx] presend: %s\n", string(payload))
+		b := &strings.Builder{}
+		b.WriteString("{")
 
-			_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
-				Payload: payload,
-			})
-			if err != nil {
-				log.Printf("[flb-go-pulsar][error][FlushCtx] err: %v\n", err)
-				return output.FLB_ERROR
-			}
+		for k, v := range record {
+			// log.Printf("[flb-go-pulsar][debug][FlushCtx] key: %v, value: %v\n", k, v)
+			// var payload []byte
+			// switch t := v.(type) {
+			// case string:
+			// 	// log.Printf("[flb-go-pulsar][debug][FlushCtx] type: string: %v\n", t)
+			// 	payload = []byte(t)
+			// case []byte:
+			// 	// log.Printf("[flb-go-pulsar][debug][FlushCtx] type: []byte: %v\n", t)
+			// 	payload = t
+			// default:
+			// 	// log.Printf("[flb-go-pulsar][debug][FlushCtx] type: %v\n", t)
+			// 	payload = []byte(fmt.Sprintf("%v", v))
+			// }
+			// log.Printf("[flb-go-pulsar][info][FlushCtx] presend: %s\n", string(payload))
+
+			s := fmt.Sprintf("\"%s\": %v, ", k, v)
+			// log.Printf("[flb-go-pulsar][info][FlushCtx] KV: %s\n", s)
+			b.WriteString(s)
+		}
+		b.WriteString("}")
+		s := b.String()
+		log.Printf("[flb-go-pulsar][info][FlushCtx] JSON: %s\n", s)
+
+		count++
+		_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
+			Payload: []byte(s),
+		})
+		if err != nil {
+			log.Printf("[flb-go-pulsar][error][FlushCtx] err: %v\n", err)
+			return output.FLB_ERROR
 		}
 	}
+	log.Printf("[flb-go-pulsar][info][FlushCtx] Succeeded: %d\n", count)
 
 	// Gets called with a batch of records to be written to an instance.
 	return output.FLB_OK
@@ -130,6 +149,7 @@ func parseBool(s string) bool {
 
 //export FLBPluginExit
 func FLBPluginExit() int {
+	log.Printf("[flb-go-pulsar][debug][exit] Graceful shutdown...")
 	if client != nil {
 		if client.Producer != nil {
 			client.Producer.Close()
