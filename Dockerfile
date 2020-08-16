@@ -1,4 +1,4 @@
-FROM golang:1.14.7 as builder
+FROM golang:1.15.0 as builder
 
 COPY go.mod /build/
 COPY go.sum /build/
