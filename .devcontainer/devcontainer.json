@@ -1,5 +1,5 @@
 {
-  "name": "fluent-bit-go-pulsar-output-sample",
+  "name": "Go",
   "build": {
     "dockerfile": "Dockerfile"
   },
