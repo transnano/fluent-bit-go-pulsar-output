@@ -23,12 +23,12 @@ $ ldd out_pulsar.so
 ## Run Fluent Bit with the new plugin
 
 ```sh
-$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar -p plugin_conf1=value1 ...
+$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o pulsar-go -p plugin_conf1=value1 ...
 ```
 
 
 ```sh
-$ sudo docker-compose up pulsar
+$ sudo docker-compose up -d pulsar
 # wait a minute...
 $ sudo docker-compose up --build fluentbit
 ```
@@ -36,7 +36,7 @@ $ sudo docker-compose up --build fluentbit
 Run Fluent Bit with the new plugin
 
 ```sh
-$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o flb-go-pulsar
+$ bin/fluent-bit -e /path/to/out_pulsar.so -i cpu -o pulsar-go
 ```
 
 Configuration File
