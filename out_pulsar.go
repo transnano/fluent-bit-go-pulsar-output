@@ -14,6 +14,9 @@ import (
 	"github.com/fluent/fluent-bit-go/output"
 )
 
+var version = "development"
+var commit = "development"
+
 var defaultMap = map[string]string{
 	"BrokerServiceUrl":           "pulsar://pulsar:6650",
 	"Tennant":                    "pulsar",
@@ -33,6 +36,7 @@ var client *pulsarClient
 
 //export FLBPluginRegister
 func FLBPluginRegister(ctx unsafe.Pointer) int {
+	log.Printf("[pulsar-go][info][Register] version: %s, commit: %s\n", version, commit)
 	// Gets called only once when the plugin.so is loaded
 	return output.FLBPluginRegister(ctx, "pulsar-go", "Output to Apache pulsar")
 }

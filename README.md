@@ -66,6 +66,8 @@ Fluent Bit v1.5.3
 * Fluent Bit is a CNCF sub-project under the umbrella of Fluentd
 * https://fluentbit.io
 ...
+2020/08/21 06:53:29 [pulsar-go][info][Register] version: v0.0.1, commit: 0d82f86
+...
 time="2020-08-20T14:11:34Z" level=info msg="Connecting to broker" remote_addr="pulsar://pulsar:6650"
 time="2020-08-20T14:11:34Z" level=info msg="TCP connection established" local_addr="172.20.0.3:36542" remote_addr="pulsar://pulsar:6650"
 time="2020-08-20T14:11:34Z" level=info msg="Connection is ready" local_addr="172.20.0.3:36542" remote_addr="pulsar://pulsar:6650"

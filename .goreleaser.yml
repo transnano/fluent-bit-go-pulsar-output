@@ -5,15 +5,37 @@ before:
   hooks:
     - go mod tidy
 builds:
-  - main: .
+  - id: pulsar-go-linux
+    main: .
     binary: out_pulsar.so
     flags:
       - -buildmode=c-shared
+    ldflags:
+     - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}}
+    goos:
+      - linux
+    goarch:
+      - 386
+      - amd64
+    goarm:
+      - 6
+      - 7
+    ignore:
+      - goos: linux
+        goarch: 386
+        goarm: 6
 archives:
   - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
     replacements:
       linux: linux
+      windows: windows
       386: i386
       amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - "*.h"
 release:
   prerelease: auto
