@@ -28,6 +28,6 @@ archives:
         format: zip
     files:
       - LICENSE
-      - "*.h"
+      - out_pulsar.h
 release:
   prerelease: auto
