@@ -4,12 +4,25 @@ import "C"
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
+	"strings"
+	"time"
 	"unsafe"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/fluent/fluent-bit-go/output"
 )
+
+var defaultMap = map[string]string{
+	"BrokerServiceUrl":           "pulsar://pulsar:6650",
+	"Tennant":                    "pulsar",
+	"Namespace":                  "default",
+	"Topic":                      "test",
+	"TLSEnabled":                 "true",
+	"TLSTrustCertsFilePath":      "file://path/to/cert",
+	"TLSAllowInsecureConnection": "true",
+}
 
 type pulsarClient struct {
 	Client   pulsar.Client
@@ -21,31 +34,37 @@ var client *pulsarClient
 //export FLBPluginRegister
 func FLBPluginRegister(ctx unsafe.Pointer) int {
 	// Gets called only once when the plugin.so is loaded
-	return output.FLBPluginRegister(ctx, "flb-go-pulsar", "Output to Apache pulsar")
+	return output.FLBPluginRegister(ctx, "pulsar-go", "Output to Apache pulsar")
 }
 
 //export FLBPluginInit
 func FLBPluginInit(plugin unsafe.Pointer) int {
+	outURL := getConfigKey(plugin, "BrokerServiceUrl")
+	log.Printf("[pulsar-go][debug][Init] URL: %s\n", outURL)
+	tennant := getConfigKey(plugin, "Tennant")
+	log.Printf("[pulsar-go][debug][Init] Tennant: %s\n", tennant)
 	clientOpts := pulsar.ClientOptions{
-		URL: output.FLBPluginConfigKey(plugin, "BrokerServiceUrl"),
-		// TLSTrustCertsFilePath:      output.FLBPluginConfigKey(plugin, "TLSTrustCertsFilePath"),
-		// TLSAllowInsecureConnection: parseBool(output.FLBPluginConfigKey(plugin, "TLSAllowInsecureConnection")),
+		URL:               outURL,
+		OperationTimeout:  30 * time.Second,
+		ConnectionTimeout: 30 * time.Second,
+		// TLSTrustCertsFilePath:      getConfigKey(plugin, "TLSTrustCertsFilePath"),
+		// TLSAllowInsecureConnection: parseBool(getConfigKey(plugin, "TLSAllowInsecureConnection")),
 	}
 	pClient, err := pulsar.NewClient(clientOpts)
 	if err != nil {
-		fmt.Errorf("[flb-go-pulsar][error][Init] failed: %s, %v\n", clientOpts.URL, err)
+		log.Printf("[pulsar-go][error][Init] failed: %s, %v\n", clientOpts.URL, err)
 		return output.FLB_ERROR
 	}
 	producerOpts := pulsar.ProducerOptions{
-		Topic: output.FLBPluginConfigKey(plugin, "Topic"),
-		// CompressionType: pulsar.LZ4,
+		Topic:           getConfigKey(plugin, "Topic"),
+		CompressionType: pulsar.LZ4,
 	}
 	pProducer, err := pClient.CreateProducer(producerOpts)
 	if err != nil {
-		fmt.Errorf("[flb-go-pulsar][error][Init] failed: %s, %v\n", producerOpts.Topic, err)
+		log.Printf("[pulsar-go][error][Init] failed: %s, %v\n", producerOpts.Topic, err)
 		return output.FLB_ERROR
 	}
-	fmt.Printf("[flb-go-pulsar][info][Init] Succeeded: %s, %s\n", clientOpts.URL, producerOpts.Topic)
+	log.Printf("[pulsar-go][info][Init] Succeeded: %s, %s\n", clientOpts.URL, producerOpts.Topic)
 
 	client = &pulsarClient{
 		Client:   pClient,
@@ -60,13 +79,18 @@ func FLBPluginInit(plugin unsafe.Pointer) int {
 func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int {
 
 	dec := output.NewDecoder(data, int(length))
+
+	count := 0
 	for {
 		ret, _, record := output.GetRecord(dec)
 		if ret != 0 {
 			break
 		}
 
-		for _, v := range record {
+		b := &strings.Builder{}
+		b.WriteString("{")
+
+		for k, v := range record {
 			var payload []byte
 			switch t := v.(type) {
 			case string:
@@ -76,20 +100,38 @@ func FLBPluginFlushCtx(ctx, data unsafe.Pointer, length C.int, tag *C.char) int 
 			default:
 				payload = []byte(fmt.Sprintf("%v", v))
 			}
-			fmt.Printf("[flb-go-pulsar][info][FlushCtx] presend: %s\n", string(payload))
+			// log.Printf("[pulsar-go][debug][FlushCtx] key: %v, value: %s\n", k, string(payload))
 
-			_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
-				Payload: payload,
-			})
-			if err != nil {
-				fmt.Errorf("[flb-go-pulsar][error][FlushCtx] err: %v\n", err)
-				return output.FLB_ERROR
-			}
+			s := fmt.Sprintf("\"%s\": %v, ", k, string(payload))
+			b.WriteString(s)
+		}
+		b.WriteString("}")
+		s := b.String()
+		// log.Printf("[pulsar-go][debug][FlushCtx] JSON: %s\n", s)
+
+		count++
+		_, err := client.Producer.Send(context.Background(), &pulsar.ProducerMessage{
+			Payload: []byte(s),
+		})
+		if err != nil {
+			log.Printf("[pulsar-go][error][FlushCtx] err: %v\n", err)
+			return output.FLB_ERROR
 		}
 	}
+	log.Printf("[pulsar-go][info][FlushCtx] Succeeded: %d\n", count)
 
 	// Gets called with a batch of records to be written to an instance.
 	return output.FLB_OK
+}
+
+func getConfigKey(plugin unsafe.Pointer, key string) string {
+	s := output.FLBPluginConfigKey(plugin, key)
+	if len(s) == 0 {
+		// log.Printf("[pulsar-go][debug][getConfigKey] Default value")
+		return defaultMap[key]
+	}
+	// log.Printf("[pulsar-go][debug][getConfigKey] Config value")
+	return s
 }
 
 func parseBool(s string) bool {
@@ -102,6 +144,7 @@ func parseBool(s string) bool {
 
 //export FLBPluginExit
 func FLBPluginExit() int {
+	log.Printf("[pulsar-go][info][exit] Graceful shutdown...")
 	if client != nil {
 		if client.Producer != nil {
 			client.Producer.Close()
