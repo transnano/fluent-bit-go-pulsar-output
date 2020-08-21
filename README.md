@@ -81,3 +81,33 @@ time="2020-08-20T14:11:34Z" level=info msg="Created producer" cnx="172.20.0.3:36
 ...
 2020/08/20 14:11:46 [pulsar-go][info][FlushCtx] Succeeded: 1000
 ```
+
+## Features
+
+- [X] Non-TLS Connection
+- [X] Persistent Topics
+- [ ] Topic Compaction(Compression)
+- [ ] Multi Tenancy
+- [ ] Non-Persistent Topics
+- [ ] Transport Encryption using TLS
+- [ ] TLS Authentication
+- [ ] Athenz (Authentication)
+- [ ] Kerberos (Authentication)
+- [ ] JSON Web Token Authentication
+
+## Configuration Parameters
+
+The plugin supports the following configuration parameters:
+
+Key                        | Description                                                                        | Default
+-------------------------- | ---------------------------------------------------------------------------------- | -------------------------
+BrokerServiceUrl           | The brokers in the cluster you send data to                                        | `pulsar://localhost:6650`
+Tennant                    | The topic's tenant within the instance.                                            | public
+Namespace                  | Pulsar namespaces are logical groupings of topics.                                 | default
+Topic                      | Topic which is a logical endpoint for publishing messages.                         | test
+CompressionType            | The compression type of the message published by the producer                      | none
+TLSEnabled                 | Encrypt communication with Apache Pulsar service                                   | false
+TLSTrustCertsFilePath      | specify the path the trust cert file                                               | (none)
+TLSAllowInsecureConnection | The client to connect to servers whose cert has not been signed by an approved CA. | false
+
+Ref: [Messaging Concepts · Apache Pulsar](https://pulsar.apache.org/docs/en/2.6.0/concepts-messaging/#topics)

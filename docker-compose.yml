@@ -21,3 +21,5 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - pulsar
+    volumes:
+      - ./sp-samples-1k.log:/fluent-bit/etc/sp-samples-1k.log
