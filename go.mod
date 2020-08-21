@@ -1,4 +1,4 @@
-module github.com/transnano/fluent-bit-go-pulsar-output-sample
+module github.com/transnano/fluent-bit-go-pulsar-output
 
 go 1.15
 
