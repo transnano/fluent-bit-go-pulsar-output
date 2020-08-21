@@ -28,6 +28,8 @@ archives:
         format: zip
     files:
       - LICENSE
-      - out_pulsar.h
+      - README.md
+      - dist/CHANGELOG.md
+      - /home/runner/work/fluent-bit-go-pulsar-output-sample/fluent-bit-go-pulsar-output-sample/dist/pulsar-go-linux_linux_amd64/out_pulsar.h
 release:
   prerelease: auto
