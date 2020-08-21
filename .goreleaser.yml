@@ -1,0 +1,19 @@
+project_name: fluent-bit-go-pulsar-output
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: .
+    binary: out_pulsar.so
+    flags:
+      - -buildmode=c-shared
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
+      linux: linux
+      386: i386
+      amd64: x86_64
+release:
+  prerelease: auto

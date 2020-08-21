@@ -1,4 +1,4 @@
-# fluent-bit-go-pulsar-output-sample
+# fluent-bit-go pulsar output ![Releases](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Releases/badge.svg) ![Publish Docker image](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Publish%20Docker%20image/badge.svg) ![Vulnerability Scan](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Vulnerability%20Scan/badge.svg)
 
 Fluent-Bit go apache pulsar output plugin
 
