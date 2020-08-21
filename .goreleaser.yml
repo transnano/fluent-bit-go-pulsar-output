@@ -30,6 +30,6 @@ archives:
       - LICENSE
       - README.md
       - dist/CHANGELOG.md
-      - /home/runner/work/fluent-bit-go-pulsar-output-sample/fluent-bit-go-pulsar-output-sample/dist/pulsar-go-linux_linux_amd64/out_pulsar.h
+      - dist/pulsar-go-linux_linux_amd64/out_pulsar.h
 release:
   prerelease: auto
