@@ -1,5 +1,14 @@
 # fluent-bit-go pulsar output ![Releases](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Releases/badge.svg) ![Publish Docker image](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Publish%20Docker%20image/badge.svg) ![Vulnerability Scan](https://github.com/transnano/fluent-bit-go-pulsar-output/workflows/Vulnerability%20Scan/badge.svg)
 
+![License](https://img.shields.io/github/license/transnano/fluent-bit-go-pulsar-output?style=flat)
+
+![Container image version](https://img.shields.io/docker/v/transnano/fluent-bit-go-pulsar-output/latest?style=flat)
+![Container image size](https://img.shields.io/docker/image-size/transnano/fluent-bit-go-pulsar-output/latest?style=flat)
+![Container image pulls](https://img.shields.io/docker/pulls/transnano/fluent-bit-go-pulsar-output?style=flat)
+
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/transnano/fluent-bit-go-pulsar-output)
+[![Go Report Card](https://goreportcard.com/badge/github.com/transnano/fluent-bit-go-pulsar-output)](https://goreportcard.com/report/github.com/transnano/fluent-bit-go-pulsar-output)
+
 Fluent-Bit go apache pulsar output plugin
 
 ## Build a Go Plugin
