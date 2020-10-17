@@ -1,10 +1,9 @@
 {
-  "extends": ["config:base"],
+  "extends": ["config:base", ":automergeMinor", ":automergePr"],
   "timezone": "Asia/Tokyo",
   "schedule": ["before 10am every weekday"],
   "labels": ["renovate"],
   "postUpdateOptions": ["gomodTidy"],
-  "patch": { "automerge": true },
   "packageRules": [
     {
       "excludePackageNames": ["github.com/apache/pulsar-client-go"]
