@@ -1,13 +1,15 @@
 FROM golang:1.15.0 as builder
 
-COPY go.mod /build/
-COPY go.sum /build/
-COPY out_pulsar.go /build/
-COPY *.conf /build/
+WORKDIR /build/
+COPY go.mod ./
+COPY go.sum ./
+COPY out_pulsar.go ./
+COPY *.conf ./
 
-RUN cd /build/ && go build -buildmode=c-shared -o out_pulsar.so .
+RUN go build -buildmode=c-shared -o out_pulsar.so .
 
 FROM fluent/fluent-bit:1.5.3 as fluent-bit
+# hadolint ignore=DL3002
 USER root
 
 COPY --from=builder /build/out_pulsar.so /fluent-bit/bin/
