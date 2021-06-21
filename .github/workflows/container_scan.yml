@@ -11,7 +11,7 @@ jobs:
       - name: Pull docker image
         run: docker pull ${{ github.repository }}:latest
 
-      - uses: homoluctus/gitrivy@v2
+      - uses: homoluctus/gitrivy@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           image: ${{ github.repository }}
