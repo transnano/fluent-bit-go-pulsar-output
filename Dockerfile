@@ -8,7 +8,7 @@ COPY *.conf ./
 
 RUN go build -buildmode=c-shared -o out_pulsar.so .
 
-FROM fluent/fluent-bit:1.8.0 as fluent-bit
+FROM fluent/fluent-bit:1.8.1 as fluent-bit
 # hadolint ignore=DL3002
 USER root
 
