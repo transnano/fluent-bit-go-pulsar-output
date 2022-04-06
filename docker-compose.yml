@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   pulsar:
-    image: apachepulsar/pulsar:2.9.1
+    image: apachepulsar/pulsar:2.9.2
     expose:
       - 8080
       - 6650
