@@ -4,5 +4,5 @@ go 1.15
 
 require (
 	github.com/apache/pulsar-client-go v0.8.1
-	github.com/fluent/fluent-bit-go v0.0.0-20201210173045-3fd1e0486df2
+	github.com/fluent/fluent-bit-go v0.0.0-20221129124408-1c1d505c91a5
 )
