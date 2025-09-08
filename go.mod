@@ -2,7 +2,7 @@ module github.com/transnano/fluent-bit-go-pulsar-output
 
 go 1.23.0
 
-toolchain go1.24.6
+toolchain go1.25.1
 
 require (
 	github.com/apache/pulsar-client-go v0.16.0
