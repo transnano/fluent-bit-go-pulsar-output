@@ -6,7 +6,7 @@ toolchain go1.26.4
 
 require (
 	github.com/apache/pulsar-client-go v0.20.0
-	github.com/fluent/fluent-bit-go v0.0.0-20230731091245-a7a013e2473c
+	github.com/fluent/fluent-bit-go v0.0.0-20260616051939-71a89c3094aa
 )
 
 require (
@@ -21,7 +21,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
